@@ -18,10 +18,9 @@ import com.example.orderservice.repository.OrderRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +29,6 @@ public class OrderService {
     private static final BigDecimal DEFAULT_DELIVERY_PRICE = BigDecimal.valueOf(5);
 
     private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
     private final CourierClient courierClient;
     private final OrderEventProducer orderEventProducer;
 
@@ -48,28 +46,28 @@ public class OrderService {
 
             publishOrderAssignedEvent(assignedOrder);
 
-            return orderMapper.toResponse(assignedOrder, courier);
+            return OrderMapper.toResponse(assignedOrder, courier);
         } catch (FeignException exception) {
             rejectOrder(createdOrder);
 
             throw new CourierUnavailableException("No available courier found");
         }
     }
-
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll()
                 .stream()
-                .map(order -> orderMapper.toResponse(order, getCourierIfAssigned(order)))
+                .map(order -> OrderMapper.toResponse(order, getCourierIfAssigned(order)))
                 .toList();
     }
+
 
     public OrderResponse getOrderById(Long id) {
         OrderEntity order = findOrderById(id);
 
-        return orderMapper.toResponse(order, getCourierIfAssigned(order));
+        return OrderMapper.toResponse(order, getCourierIfAssigned(order));
     }
 
-    @Transactional
+
     public OrderResponse markAsPickedUp(Long id) {
         OrderEntity order = findOrderById(id);
 
@@ -79,10 +77,9 @@ public class OrderService {
 
         OrderEntity updatedOrder = orderRepository.save(order);
 
-        return orderMapper.toResponse(updatedOrder, getCourierIfAssigned(updatedOrder));
+        return OrderMapper.toResponse(updatedOrder, getCourierIfAssigned(updatedOrder));
     }
 
-    @Transactional
     public OrderResponse markAsDelivered(Long id) {
         OrderEntity order = findOrderById(id);
 
@@ -94,7 +91,7 @@ public class OrderService {
 
         publishOrderDeliveredEvent(updatedOrder);
 
-        return orderMapper.toResponse(updatedOrder, getCourierIfAssigned(updatedOrder));
+        return OrderMapper.toResponse(updatedOrder, getCourierIfAssigned(updatedOrder));
     }
 
     private BigDecimal calculateDeliveryPrice() {
@@ -102,7 +99,7 @@ public class OrderService {
     }
 
     private OrderEntity createInitialOrder(CreateOrderRequest request, BigDecimal deliveryPrice) {
-        OrderEntity order = orderMapper.toEntity(request, deliveryPrice);
+        OrderEntity order = OrderMapper.toEntity(request, deliveryPrice);
 
         return orderRepository.save(order);
     }

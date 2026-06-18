@@ -7,8 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/orders")
@@ -27,7 +27,6 @@ public class OrderController {
     public List<OrderResponse> getAllOrders() {
         return orderService.getAllOrders();
     }
-
     @GetMapping("/{id}")
     public OrderResponse getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id);

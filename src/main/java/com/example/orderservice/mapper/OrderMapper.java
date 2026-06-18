@@ -5,14 +5,12 @@ import com.example.orderservice.dto.CreateOrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.entity.OrderEntity;
 import com.example.orderservice.entity.OrderStatus;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-@Component
-public class OrderMapper {
+public interface OrderMapper {
 
-    public OrderEntity toEntity(CreateOrderRequest request, BigDecimal deliveryPrice) {
+    static OrderEntity toEntity(CreateOrderRequest request, BigDecimal deliveryPrice) {
         return OrderEntity.builder()
                 .pickupAddress(request.getPickupAddress())
                 .deliveryAddress(request.getDeliveryAddress())
@@ -21,7 +19,7 @@ public class OrderMapper {
                 .build();
     }
 
-    public OrderResponse toResponse(OrderEntity order, CourierResponse courier) {
+    static OrderResponse toResponse(OrderEntity order, CourierResponse courier) {
         return OrderResponse.builder()
                 .id(order.getId())
                 .pickupAddress(order.getPickupAddress())
